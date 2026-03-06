@@ -11,7 +11,7 @@ import cl.sergio.carocca.tucitaideal_api.service.FileService; // IMPORTANTE: Imp
 
 @RestController
 @RequestMapping("/api/v1/planes")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 public class PlanRestController {
 
     private final PlanService planService;
