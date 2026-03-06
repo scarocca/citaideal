@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.HashMap;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import cl.sergio.carocca.tucitaideal_api.entity.Consulta;
@@ -15,34 +14,28 @@ import cl.sergio.carocca.tucitaideal_api.entity.MensajeChat;
 import cl.sergio.carocca.tucitaideal_api.entity.Reserva;
 import cl.sergio.carocca.tucitaideal_api.entity.Usuario;
 import cl.sergio.carocca.tucitaideal_api.repository.ConsultaRepository;
+import cl.sergio.carocca.tucitaideal_api.repository.UsuarioRepository; // Importamos el repo
 import cl.sergio.carocca.tucitaideal_api.service.ChatService;
 import cl.sergio.carocca.tucitaideal_api.service.ConsultaService;
 import cl.sergio.carocca.tucitaideal_api.service.ReservaService;
-import cl.sergio.carocca.tucitaideal_api.service.UsuarioService;
 
-
-
-/**
- * Adaptación del AdminController a arquitectura REST para consumo desde React.
- * @author Sergio Carocca
- */
 @RestController
 @RequestMapping("/api/v1/admin")
 @CrossOrigin(origins = "*") 
-@PreAuthorize("hasRole('ADMIN')")
+// 1. ELIMINAMOS @PreAuthorize("hasRole('ADMIN')") ya que no usaremos roles
 public class AdminRestController {
 
     private final ConsultaRepository consultaRepository;
     private final ReservaService reservaService;
-    private final UsuarioService usuarioService;
+    private final UsuarioRepository usuarioRepository; // 2. USAMOS REPOSITORY DIRECTO
     private final ConsultaService consultaService;
     private final ChatService chatService;
 
     public AdminRestController(ConsultaRepository consultaRepository, ReservaService reservaService,
-                               UsuarioService usuarioService, ConsultaService consultaService, ChatService chatService) {
+                               UsuarioRepository usuarioRepository, ConsultaService consultaService, ChatService chatService) {
         this.consultaRepository = consultaRepository;
         this.reservaService = reservaService;
-        this.usuarioService = usuarioService;
+        this.usuarioRepository = usuarioRepository; // Inyectamos el repo
         this.consultaService = consultaService;
         this.chatService = chatService;
     }
@@ -53,12 +46,11 @@ public class AdminRestController {
     public ResponseEntity<List<Consulta>> listarConsultas() {
         List<Consulta> lista = consultaRepository.findAll();
         Collections.reverse(lista); 
-        return ResponseEntity.ok(lista); // Retorna el JSON de consultas
+        return ResponseEntity.ok(lista);
     }
 
     @PostMapping("/consultas/responder")
     public ResponseEntity<?> responder(@RequestBody Map<String, Object> payload) {
-        // En REST usamos @RequestBody para recibir JSON desde React
         Long consultaId = Long.valueOf(payload.get("consultaId").toString());
         String contenido = payload.get("contenido").toString();
 
@@ -84,7 +76,7 @@ public class AdminRestController {
         return ResponseEntity.ok(reservaService.listarTodas());
     }
 
-    @PutMapping("/reservas/confirmar/{id}") // Usamos PUT para actualizar estado
+    @PutMapping("/reservas/confirmar/{id}")
     public ResponseEntity<?> confirmarReserva(@PathVariable Long id) {
         try {
             reservaService.confirmarReserva(id);
@@ -96,27 +88,29 @@ public class AdminRestController {
         }
     }
 
-    // --- GESTIÓN DE USUARIOS ---
+    // --- GESTIÓN DE USUARIOS (SIMPLIFICADO) ---
 
     @GetMapping("/usuarios")
     public ResponseEntity<List<Usuario>> listarUsuarios() {
-        return ResponseEntity.ok(usuarioService.listartodo());
+        // 3. Usamos findAll() directamente del repositorio
+        return ResponseEntity.ok(usuarioRepository.findAll());
     }
 
-    @DeleteMapping("/usuarios/eliminar/{id}") // Usamos DELETE para eliminar
+    @DeleteMapping("/usuarios/eliminar/{id}")
     public ResponseEntity<?> eliminarUsuario(@PathVariable Long id) {
         try {
-            usuarioService.eliminar(id);
-            return ResponseEntity.ok().build(); // Retorna 200 OK sin cuerpo
+            // 4. Usamos deleteById() del repositorio
+            usuarioRepository.deleteById(id);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error al eliminar usuario");
         }
     }
- // --- MÉTODO PARA ELIMINAR RESERVAS ---
+
     @DeleteMapping("/reservas/eliminar/{id}")
     public ResponseEntity<?> eliminarReserva(@PathVariable Long id) {
         try {
-            reservaService.eliminar(id); // Asegúrate de que tu ReservaService tenga el método eliminar
+            reservaService.eliminar(id);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("No se pudo eliminar la reserva");

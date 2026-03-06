@@ -3,25 +3,21 @@ package cl.sergio.carocca.tucitaideal_api.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider; // ESTE ES EL QUE FALTA
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
 public class SecurityConfig {
     
     private final CustomUserDetailsService userDetailsService;
 
-    // Constructor para inyección (más limpio que @Autowired)
     public SecurityConfig(CustomUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
@@ -31,33 +27,34 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // --- ESTA ES LA PIEZA QUE FALTA ---
     @Bean
-    DaoAuthenticationProvider authenticationProvider() {
+    public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService); // Quién busca al usuario
-        authProvider.setPasswordEncoder(passwordEncoder());    // Cómo valida la clave
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
 
     @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .cors(Customizer.withDefaults())
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll() // Permitimos todo por ahora para diagnóstico
-            )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .authorizeHttpRequests(auth -> auth
+                // Permitimos el acceso total al login para que el Frontend pueda conectar
+                .requestMatchers("/api/auth/**").permitAll() 
+                // Cualquier otra ruta requiere estar AUTENTICADO (pero ya no pide ROLES)
+                .anyRequest().authenticated() 
             );
 
-        // Agregamos el proveedor al flujo
         http.authenticationProvider(authenticationProvider());
 
         return http.build();

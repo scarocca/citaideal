@@ -1,38 +1,28 @@
 package cl.sergio.carocca.tucitaideal_api.dto;
 
 public class AuthResponse {
-    private String username;
-    private String rol;
+    private String email;
     private String mensaje;
 
-    public AuthResponse(String username, String rol, String mensaje) {
-        this.username = username;
-        this.rol = rol;
+    // Constructor simplificado sin ROL
+    public AuthResponse(String email, String mensaje) {
+        this.email = email;
         this.mensaje = mensaje;
     }
 
-	public String getUsername() {
-		return username;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public String getRol() {
-		return rol;
-	}
+    public String getMensaje() {
+        return mensaje;
+    }
 
-	public void setRol(String rol) {
-		this.rol = rol;
-	}
-
-	public String getMensaje() {
-		return mensaje;
-	}
-
-	public void setMensaje(String mensaje) {
-		this.mensaje = mensaje;
-	}
-    
+    public void setMensaje(String mensaje) {
+        this.mensaje = mensaje;
+    }
 }
