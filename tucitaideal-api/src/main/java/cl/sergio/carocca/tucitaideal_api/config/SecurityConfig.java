@@ -56,11 +56,18 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-                // 2. Permitimos explícitamente las peticiones de diagnóstico del navegador
-                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/api/auth/**").permitAll() 
-                .anyRequest().authenticated() 
-            );
+            	    // 1. IMPORTANTE: Permitimos la raíz y el error para que Render no apague la app
+            	    .requestMatchers("/", "/error").permitAll()
+            	    
+            	    // 2. Permitimos las peticiones OPTIONS (CORS) para el navegador
+            	    .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+            	    
+            	    // 3. Tu ruta de login actual
+            	    .requestMatchers("/api/auth/**").permitAll() 
+            	    
+            	    // 4. Todo lo demás requiere estar logueado
+            	    .anyRequest().authenticated() 
+            	);
 
         http.authenticationProvider(authenticationProvider());
 
