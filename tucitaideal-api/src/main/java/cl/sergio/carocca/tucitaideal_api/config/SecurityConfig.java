@@ -44,14 +44,21 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-            .cors(Customizer.withDefaults())
+            // 1. Configuramos CORS de forma manual y agresiva para que no bloquee a React
+            .cors(cors -> cors.configurationSource(request -> {
+                var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
+                corsConfiguration.setAllowedOrigins(java.util.List.of("*")); // Permite cualquier origen
+                corsConfiguration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                corsConfiguration.setAllowedHeaders(java.util.List.of("*"));
+                return corsConfiguration;
+            }))
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-                // Permitimos el acceso total al login para que el Frontend pueda conectar
+                // 2. Permitimos explícitamente las peticiones de diagnóstico del navegador
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll() 
-                // Cualquier otra ruta requiere estar AUTENTICADO (pero ya no pide ROLES)
                 .anyRequest().authenticated() 
             );
 
