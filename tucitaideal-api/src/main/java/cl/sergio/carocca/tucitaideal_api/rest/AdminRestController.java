@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import cl.sergio.carocca.tucitaideal_api.entity.Consulta;
@@ -27,7 +28,8 @@ import cl.sergio.carocca.tucitaideal_api.service.UsuarioService;
  */
 @RestController
 @RequestMapping("/api/v1/admin")
-@CrossOrigin(origins = "http://localhost:5173") // Permiso para tu React
+@CrossOrigin(origins = "*") 
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminRestController {
 
     private final ConsultaRepository consultaRepository;
