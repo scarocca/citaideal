@@ -38,22 +38,22 @@ public class CustomUserDetailsService implements UserDetailsService {
      * @throws UsernameNotFoundException Si el usuario no existe en la base de datos.
      */
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 1. Buscamos el usuario en la BD por su nombre de usuario
-        Usuario usuario = usuarioRepo.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("No se encontró una cuenta con el correo: " + username));
+    public UserDetails loadUserByUsername(String loginInput) throws UsernameNotFoundException {
+        // 1. IMPORTANTE: Cambiamos findByUsername por findByEmail
+        // Porque 'loginInput' contiene el correo que viene del formulario
+        Usuario usuario = usuarioRepo.findByEmail(loginInput)
+                .orElseThrow(() -> new UsernameNotFoundException("No se encontró el usuario con email: " + loginInput));
 
-        // 2. Convertimos tus Roles (Entidades) en GrantedAuthority (lo que entiende Spring)
-        // Usamos Java Streams para transformar cada Rol en una SimpleGrantedAuthority
+        // 2. Cargamos las autoridades (esto ya lo tienes bien)
         List<GrantedAuthority> autoridades = usuario.getRoles().stream()
                 .map(rol -> new SimpleGrantedAuthority(rol.getNombre()))
                 .collect(Collectors.toList());
 
-        // 3. Retornamos un objeto User de Spring Security (clase estándar del framework)
-        // Este objeto es el que Spring guardará en el contexto de seguridad (SecurityContext)
+        // 3. Retornamos el objeto User
+        // Usamos el email como nombre de usuario principal para Spring
         return new org.springframework.security.core.userdetails.User(
-                usuario.getUsername(),
-                usuario.getPassword(),
+                usuario.getEmail(), 
+                usuario.getPassword(), 
                 autoridades
         );
     }
