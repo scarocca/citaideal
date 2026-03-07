@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import cl.sergio.carocca.tucitaideal_api.entity.ItemCarrito;
+
 import cl.sergio.carocca.tucitaideal_api.entity.Reserva;
 import cl.sergio.carocca.tucitaideal_api.entity.Usuario;
 import cl.sergio.carocca.tucitaideal_api.repository.ReservaRepository;
@@ -59,49 +59,7 @@ public class ReservaService {
         return reservaRepository.findAllByOrderByFechaCitaDesc();
     }
 
-    /**
-     * Procesa la compra de múltiples servicios desde el carrito en un solo flujo.
-     * Primero valida que TODOS los servicios estén disponibles para evitar reservas parciales
-     * y luego genera registros individuales para cada ítem.
-     * * @param carrito Lista de ítems seleccionados por el usuario.
-     * @param fecha La fecha y hora común para la prestación de los servicios.
-     * @param datosCliente Objeto que contiene la información de contacto del solicitante.
-     * @return Lista de reservas confirmadas y guardadas.
-     * @throws Exception Si al menos uno de los servicios solicitados no tiene disponibilidad.
-     */
-    public List<Reserva> guardarReservaMultiple(List<ItemCarrito> carrito, LocalDateTime fecha, Reserva datosCliente,Usuario usuarioLogueado) throws Exception {
-        List<Reserva> listaConfirmadas = new ArrayList<>();        
-        
-        // 1. Validar disponibilidad de TODOS los planes antes de guardar nada (Consistencia)
-        for (ItemCarrito item : carrito) {
-            boolean ocupado = reservaRepository.existeReservaEnEsaFecha(
-                                item.getPlan().getId(), 
-                                fecha);
-            
-            if (ocupado) {
-                throw new Exception("Lo sentimos, el servicio '" + item.getPlan().getNombre() + 
-                                    "' ya no está disponible para esa fecha y hora.");
-            }
-        }
-
-        // 2. Si todos están libres, procedemos a la persistencia
-        for (ItemCarrito item : carrito) {
-            Reserva nueva = new Reserva();
-            nueva.setNombreCliente(datosCliente.getNombreCliente());
-            nueva.setEmailCliente(datosCliente.getEmailCliente());
-            nueva.setTelefonoCliente(datosCliente.getTelefonoCliente());
-            nueva.setFechaCita(fecha);
-            nueva.setPlan(item.getPlan());
-            nueva.setEstado("CONFIRMADA");
-            
-            nueva.setUsuario(usuarioLogueado);
-            // Generación de código único de seguimiento
-            nueva.setCodigoSeguimiento(java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase());
-            
-            listaConfirmadas.add(reservaRepository.save(nueva));
-        }
-        return listaConfirmadas;
-    }
+    
 
     /**
      * Elimina una reserva del sistema verificando su existencia previa.
