@@ -34,7 +34,7 @@ public class Plan {
      */
     @Column(nullable = false, length = 100)
     @NotBlank(message = "El nombre no puede estar vacío")
-    @Size(min = 5, max = 25, message = "El nombre debe tener entre 5 y 25 caracteres")
+    @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres") // 👈 Cambiado de 25 a 100
     private String nombre;
 
     /** * Descripción detallada de lo que incluye el servicio. 
@@ -51,7 +51,7 @@ public class Plan {
     @Column(nullable = false)
     @NotNull(message = "El precio es obligatorio")
     @DecimalMin(value = "0.0", inclusive = false, message = "El precio debe ser mayor a 0")
-    private BigDecimal precioBase;
+    private Double precioBase; // 👈 Cambiado de BigDecimal a Double
     
     /** * Indica si el plan está visible en el catálogo público. 
      * Por defecto es true.
@@ -93,11 +93,11 @@ public class Plan {
         this.descripcion = descripcion;
     }
 
-    public BigDecimal getPrecioBase() {
+    public Double getPrecioBase() {
         return precioBase;
     }
 
-    public void setPrecioBase(BigDecimal precioBase) {
+    public void setPrecioBase(Double precioBase) {
         this.precioBase = precioBase;
     }
 

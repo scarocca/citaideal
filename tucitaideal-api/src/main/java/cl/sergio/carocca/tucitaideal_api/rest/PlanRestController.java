@@ -60,30 +60,34 @@ public class PlanRestController {
         }
     }
     @PostMapping("/crear-con-foto")
-    public ResponseEntity<Plan> crearConFoto(
+    public ResponseEntity<?> crearConFoto(
             @RequestParam("archivo") MultipartFile archivo,
             @RequestParam("nombre") String nombre,
             @RequestParam("descripcion") String descripcion,
-            @RequestParam("precioBase") java.math.BigDecimal precioBase, // Nombre y tipo exacto
+            @RequestParam("precioBase") Double precioBase, // 👈 CAMBIADO: De BigDecimal a Double
             @RequestParam("activo") boolean activo) {
         try {
-            // 1. Subir a Cloudinary usando el servicio que ya configuramos
+            System.out.println("Intentando crear plan con Double: " + nombre);
+
+            // 1. Subir a Cloudinary
             String urlNube = fileService.guardarArchivo(archivo, "planes");
 
-            // 2. Crear instancia de Plan con tus atributos exactos
+            // 2. Crear instancia
             Plan nuevoPlan = new Plan();
             nuevoPlan.setNombre(nombre);
             nuevoPlan.setDescripcion(descripcion);
-            nuevoPlan.setPrecioBase(precioBase); // Atributo correcto
+            nuevoPlan.setPrecioBase(precioBase); // 👈 Ahora coinciden los tipos
             nuevoPlan.setActivo(activo);
-            nuevoPlan.setImagenUrl(urlNube); // Atributo correcto
+            nuevoPlan.setImagenUrl(urlNube);
 
             // 3. Guardar en BD
             Plan guardado = planService.guardarPlan(nuevoPlan);
+            System.out.println("✅ Plan guardado con éxito: ID " + guardado.getId());
             return ResponseEntity.ok(guardado);
             
         } catch (Exception e) {
-            return ResponseEntity.status(500).build();
+            System.err.println("❌ ERROR AL CREAR PLAN: " + e.getMessage());
+            return ResponseEntity.status(500).body("Error interno: " + e.getMessage());
         }
     }
     @PutMapping("/{id}")
