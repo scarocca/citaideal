@@ -22,25 +22,24 @@ public class TucitaidealApiApplication {
         SpringApplication.run(TucitaidealApiApplication.class, args);
     }
     @Bean
-    CommandLineRunner init(UsuarioRepository repository, org.springframework.security.crypto.password.PasswordEncoder encoder) {
+    CommandLineRunner init(UsuarioRepository repository, PasswordEncoder encoder) {
         return args -> {
-            // 1. Limpiamos la tabla para que no existan errores de duplicado o roles viejos
-            repository.deleteAll();
-            System.out.println("🧹 Base de datos limpia");
-
-            // 2. Creamos al usuario administrador
-            Usuario admin = new Usuario();
-            admin.setEmail("admin@citaideal.cl");
-            admin.setUsername("admin@citaideal.cl");
+            String adminEmail = "admin@citaideal.cl";
             
-            // La clave será 'admin123' (pero se guarda encriptada)
-            admin.setPassword(encoder.encode("admin123"));
+            // Verificamos si ya existe antes de intentar crear
+            if (repository.findByEmail(adminEmail).isEmpty()) {
+                Usuario admin = new Usuario();
+                admin.setEmail(adminEmail);
+                admin.setUsername(adminEmail);
+                admin.setPassword(encoder.encode("admin123"));
+                
+                repository.save(admin);
+                System.out.println("🚀 USUARIO ADMINISTRADOR CREADO CON ÉXITO");
+            } else {
+                System.out.println("✅ El administrador ya existe en la base de datos. Saltando creación.");
+            }
             
-            repository.save(admin);
-            
-            System.out.println("🚀 USUARIO CREADO PARA LOGIN:");
-            System.out.println("📧 Email: admin@citaideal.cl");
-            System.out.println("🔑 Clave: admin123");
+            System.out.println("✨ Servidor Tucitaideal API listo y escuchando...");
         };
     }
 
