@@ -1,5 +1,6 @@
 package cl.sergio.carocca.tucitaideal_api.rest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,5 +40,14 @@ public class ReservaController {
         // El servicio se encarga de la lógica de guardado
         Reserva nuevaReserva = reservaService.guardarReserva(reserva);
         return ResponseEntity.ok(nuevaReserva);
+    }
+    @GetMapping("/fechas-ocupadas")
+    public List<LocalDateTime> getFechasOcupadas() {
+        return reservaService.obtenerFechasOcupadas();
+    }
+    @GetMapping("/fechas-bloqueadas")
+    public ResponseEntity<List<LocalDateTime>> getFechasBloqueadas() {
+        List<LocalDateTime> fechas = reservaService.obtenerFechasOcupadas();
+        return ResponseEntity.ok(fechas);
     }
 }

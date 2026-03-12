@@ -55,4 +55,11 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
      */
     List<Reserva> findAllByOrderByFechaCitaDesc();
     List<Reserva> findByUsuarioEmail(String email);
+    /**
+     * Obtiene todas las fechas de citas que ya tienen una reserva confirmada o pendiente.
+     * Útil para bloquear fechas en el calendario del frontend.
+     * * @return Lista de fechas (LocalDateTime) no disponibles.
+     */
+    @Query("SELECT r.fechaCita FROM Reserva r WHERE r.estado IN ('CONFIRMADA', 'PENDIENTE')")
+    List<LocalDateTime> findAllFechasOcupadas();
 }

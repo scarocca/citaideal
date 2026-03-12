@@ -151,4 +151,13 @@ public class ReservaService {
         // como enviar el correo de confirmación.
         return reservaRepository.save(reserva);
     }
+    /**
+     * Obtiene una lista de todas las fechas que ya tienen una reserva
+     * para que el frontend pueda bloquearlas en el calendario.
+     * * @return Lista de LocalDateTime con las fechas no disponibles.
+     */
+    public List<LocalDateTime> obtenerFechasOcupadas() {
+        // Llamamos al método que añadimos en el ReservaRepository
+        return reservaRepository.findAllFechasOcupadas();
+    }
 }
