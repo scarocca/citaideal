@@ -1,4 +1,4 @@
-package cl.sergio.carocca.tucitaideal_api.entity;
+	package cl.sergio.carocca.tucitaideal_api.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
