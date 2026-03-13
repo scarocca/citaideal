@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/galeria")
-@CrossOrigin(origins = "http://localhost:5173") // Tu puerto de React
+@CrossOrigin(origins = "*") // Tu puerto de React
 public class FotoRestController {
 
     private final FotoService fotoService;

@@ -44,7 +44,7 @@ public class ChatAgenteService {
             // Reemplaza '569XXXXXXXX' con tu número real
             String whatsappUrl = "https://wa.me/56986343735"; 
             
-            return "¡Hola! Soy Valentín. En este momento no puedo procesar tu solicitud, pero Sergio está disponible para ayudarte. " + 
+            return "¡Hola! Soy Valentín. En este momento no puedo procesar tu solicitud, pero nuestros asistentes está disponible para ayudarte. " + 
                    "Escríbenos aquí: " + whatsappUrl + " 💖";
         }
     }

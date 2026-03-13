@@ -19,7 +19,7 @@ import cl.sergio.carocca.tucitaideal_api.service.ReservaService;
 
 @RestController
 @RequestMapping("/api/v1/reservas")
-@CrossOrigin(origins = "http://localhost:5173") // Reemplaza con el puerto de tu React
+@CrossOrigin(origins = "*") // Reemplaza con el puerto de tu React
 public class ReservaController {
 
     @Autowired
